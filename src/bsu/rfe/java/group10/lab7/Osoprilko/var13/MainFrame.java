@@ -69,4 +69,93 @@ public MainFrame {
     final JPanel messagePanel = new JPanel();
     messagePanel.setBorder(
             BorderFactory.createTitledBorder("Сообщение"));
+    // Кнопка отправки сообщения
+    final JButton sendButton = new JButton("Отправить");
+    sendButton.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            sendMessage();
+        }
+    });
+// Компоновка элементов панели "Сообщение"
+    final GroupLayout layout2 = new GroupLayout(messagePanel);
+    messagePanel.setLayout(layout2);
+    layout2.setHorizontalGroup(layout2.createSequentialGroup()
+            .addContainerGap()
+            .addGroup(layout2.createParallelGroup(Alignment.TRAILING)
+                    .addGroup(layout2.createSequentialGroup()
+                            .addComponent(labelFrom)
+                            .addGap(SMALL_GAP)
+                            .addComponent(textFieldFrom)
+                            .addGap(LARGE_GAP)
+                            .addComponent(labelTo)
+                            .addGap(SMALL_GAP)
+                            .addComponent(textFieldTo))
+                    .addComponent(scrollPaneOutgoing)
+                    .addComponent(sendButton))
+            .addContainerGap());
+    layout2.setVerticalGroup(layout2.createSequentialGroup()
+            .addContainerGap()
+            .addGroup(layout2.createParallelGroup(Alignment.BASELINE)
+                    .addComponent(labelFrom)
+                    .addComponent(textFieldFrom)
+                    .addComponent(labelTo)
+                    .addComponent(textFieldTo))
+            .addGap(MEDIUM_GAP)
+            .addComponent(scrollPaneOutgoing)
+            .addGap(MEDIUM_GAP)
+            .addComponent(sendButton)
+            .addContainerGap());
+// Компоновка элементов фрейма
+    final GroupLayout layout1 = new GroupLayout(getContentPane());
+    setLayout(layout1);
+    layout1.setHorizontalGroup(layout1.createSequentialGroup()
+            .addContainerGap()
+            .addGroup(layout1.createParallelGroup()
+                    .addComponent(scrollPaneIncoming)
+                    .addComponent(messagePanel))
+            .addContainerGap());
+    layout1.setVerticalGroup(layout1.createSequentialGroup()
+            .addContainerGap()
+            .addComponent(scrollPaneIncoming)
+            .addGap(MEDIUM_GAP)
+            .addComponent(messagePanel)
+            .addContainerGap());
+    // Создание и запуск потока-обработчика запросов
+    new Thread(new Runnable() {
+        @Override
+        public void run() {
+            try {
+                final ServerSocket serverSocket =
+                        new ServerSocket(SERVER_PORT);
+                while (!Thread.interrupted()) {
+                    final Socket socket = serverSocket.accept();
+                    final DataInputStream in = new DataInputStream(
+                            socket.getInputStream());
+// Читаем имя отправителя
+                    final String senderName = in.readUTF();
+// Читаем сообщение
+                    final String message = in.readUTF();
+// Закрываем соединение
+                    socket.close();
+// Выделяем IP-адрес
+                    final String address =
+                            ((InetSocketAddress) socket
+                                    .getRemoteSocketAddress())
+                                    .getAddress()
+                                    .getHostAddress();
+// Выводим сообщение в текстовую область
+                    textAreaIncoming.append(senderName +
+                            " (" + address + "): " +
+                            message + "\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(MainFrame.this,
+                            "Ошибка в работе сервера", "Ошибка",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }).start();
+    }
+
 }
