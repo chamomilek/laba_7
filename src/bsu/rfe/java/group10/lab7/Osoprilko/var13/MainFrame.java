@@ -40,5 +40,33 @@ public class MainFrame extends JFrame {
     private final JTextArea textAreaIncoming;
     private final JTextArea textAreaOutgoing;
 
-public class MainFrame {
+public MainFrame {
+        super(FRAME_TITLE);
+        setMinimumSize(
+                new Dimension(FRAME_MINIMUM_WIDTH, FRAME_MINIMUM_HEIGHT));
+    // Центрирование окна
+    final Toolkit kit = Toolkit.getDefaultToolkit();
+    setLocation((kit.getScreenSize().width - getWidth()) / 2,
+            (kit.getScreenSize().height - getHeight()) / 2);
+// Текстовая область для отображения полученных сообщений
+    textAreaIncoming = new JTextArea(INCOMING_AREA_DEFAULT_ROWS, 0);
+    textAreaIncoming.setEditable(false);
+// Контейнер, обеспечивающий прокрутку текстовой области
+    final JScrollPane scrollPaneIncoming =
+            new JScrollPane(textAreaIncoming);
+// Подписи полей
+    final JLabel labelFrom = new JLabel("Подпись");
+    final JLabel labelTo = new JLabel("Получатель");
+// Поля ввода имени пользователя и адреса получателя
+    textFieldFrom = new JTextField(FROM_FIELD_DEFAULT_COLUMNS);
+    textFieldTo = new JTextField(TO_FIELD_DEFAULT_COLUMNS);
+// Текстовая область для ввода сообщения
+    textAreaOutgoing = new JTextArea(OUTGOING_AREA_DEFAULT_ROWS, 0);
+// Контейнер, обеспечивающий прокрутку текстовой области
+    final JScrollPane scrollPaneOutgoing =
+            new JScrollPane(textAreaOutgoing);
+// Панель ввода сообщения
+    final JPanel messagePanel = new JPanel();
+    messagePanel.setBorder(
+            BorderFactory.createTitledBorder("Сообщение"));
 }
