@@ -11,6 +11,9 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -22,6 +25,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.GroupLayout.Alignment;
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame {
     private static final String FRAME_TITLE = "Клиент мгновенных сообщений";
@@ -39,8 +43,7 @@ public class MainFrame extends JFrame {
     private final JTextField textFieldTo;
     private final JTextArea textAreaIncoming;
     private final JTextArea textAreaOutgoing;
-
-public MainFrame {
+    public MainFrame() {
         super(FRAME_TITLE);
         setMinimumSize(
                 new Dimension(FRAME_MINIMUM_WIDTH, FRAME_MINIMUM_HEIGHT));
@@ -82,7 +85,7 @@ public MainFrame {
     messagePanel.setLayout(layout2);
     layout2.setHorizontalGroup(layout2.createSequentialGroup()
             .addContainerGap()
-            .addGroup(layout2.createParallelGroup(Alignment.TRAILING)
+            .addGroup(layout2.createParallelGroup(GroupLayout.Alignment.TRAILING)
                     .addGroup(layout2.createSequentialGroup()
                             .addComponent(labelFrom)
                             .addGap(SMALL_GAP)
@@ -96,7 +99,7 @@ public MainFrame {
             .addContainerGap());
     layout2.setVerticalGroup(layout2.createSequentialGroup()
             .addContainerGap()
-            .addGroup(layout2.createParallelGroup(Alignment.BASELINE)
+            .addGroup(layout2.createParallelGroup(GroupLayout.Alignment.BASELINE)
                     .addComponent(labelFrom)
                     .addComponent(textFieldFrom)
                     .addComponent(labelTo)
@@ -184,6 +187,15 @@ public MainFrame {
                             JOptionPane.ERROR_MESSAGE);
                     return;
                 }
+                if(!validAddress()){
+                    JOptionPane.showMessageDialog(this,
+                            "Некорректный IP-адрес! IP-адрес состоит из четырёх чисел 0-255, разделённых ТОЧКОЙ", "Ошибка",
+                            JOptionPane.ERROR_MESSAGE);
+                    textFieldTo.setText("");
+                    textFieldTo.requestFocusInWindow();
+                    return;
+
+                }
 // Создаем сокет для соединения
                 final Socket socket =
                         new Socket(destinationAddress, SERVER_PORT);
@@ -223,5 +235,25 @@ public MainFrame {
             }
         });
     }
+    boolean validAddress()
+    {
+        String IP = textFieldTo.getText();
+
+        //объявили регулярное выражение
+        Pattern trueStringIp = Pattern.compile(
+                "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+                        "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+                        "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+                        "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
+
+//		"^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$"
+
+        //сравнивние регулярного выражения с указанной строкой, в скобках указать текущее значение IP адреса
+        Matcher presentValue = trueStringIp.matcher(IP);
+
+        //true or false
+        boolean verification = presentValue.matches();
+
+        return  verification;
+    }
  }
-}
